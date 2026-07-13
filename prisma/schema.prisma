@@ -1,0 +1,152 @@
+// A single Postgres database, used identically for local development and
+// production - no SQLite, no separate pooled/direct URLs. Two earlier
+// versions of this project tried to be cleverer than that and both caused
+// real, hours-long problems: SQLite locally vs Postgres in production
+// meant the app quietly had no working database at all once deployed, and
+// a separate directUrl/pooled-URL setup meant matching Vercel's
+// auto-generated variable names (which don't always match what Prisma
+// expects) by hand. One connection string, used everywhere, removes both
+// failure modes. This app's traffic doesn't come close to needing
+// connection pooling - see README section 1 for how to get a free
+// Postgres database (Neon, ~2 minutes, no credit card).
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Work {
+  id          Int      @id @default(autoincrement())
+  title       String
+  category    String // brand | logo | flyer | print
+  description String?
+  imageUrl    String
+  thumbUrl    String
+  blurDataUrl String? // tiny base64 preview, shown while the real image loads
+  status      String   @default("live") // live | draft
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, category])
+  @@index([createdAt])
+}
+
+// A single row (id: 1) holding every piece of editable text and social
+// link on the public site's Hero, About, and Contact sections. Kept as one
+// row rather than a key/value table because the content is small, fixed,
+// and always needed together on every homepage load.
+model SiteContent {
+  id Int @id @default(1)
+
+  heroEyebrow      String @default("Brand & Graphic Design Studio")
+  heroHeadingLine1 String @default("Precision by law.")
+  heroHeadingLine2 String @default("Instinct by design.")
+  heroSubtext      String @default("THE LEX CONCEPT is the design practice of Alexandra Fajemirokun — a 500-level law student and graphic designer building brand identities, logos, and print work with the same discipline she brings to the books.")
+  heroToolsLabel   String @default("Photoshop, CorelDraw")
+  heroFocusLabel   String @default("Brand · Logo · Print")
+  heroBasedLabel   String @default("Lagos, Nigeria")
+
+  aboutHeadingLine1 String @default("500-level law student by day.")
+  aboutHeadingLine2 String @default("Graphic designer by craft.")
+  aboutParagraph1   String @default("Alexandra Fajemirokun founded THE LEX CONCEPT while balancing law school with a growing design practice — building brand identities, logos, and print work for clients who want the same precision she brings to legal argument.")
+  aboutParagraph2   String @default("Working primarily in Photoshop and CorelDraw, Alexandra's approach treats every brief like a case: understand it fully, then argue it visually.")
+  aboutImageUrl     String?
+  aboutImageBlurDataUrl String?
+  statProjects      Int    @default(40)
+  statYears         Int    @default(3)
+  statSatisfaction  Int    @default(100)
+
+  contactHeadingLine1 String @default("Have a brief?")
+  contactHeadingLine2 String @default("Let's argue it visually.")
+  contactSubtext      String @default("Open for brand identity, logo, flyer, poster, and print projects. Fill out the form or reach out directly — response within 24–48 hours.")
+  contactEmail        String @default("hello@thelexconcept.com")
+
+  instagramUrl String?
+  facebookUrl  String?
+  tiktokUrl    String?
+  linkedinUrl  String?
+  upworkUrl    String?
+  whatsappUrl  String?
+
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String
+  projectType String
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// Every real event on the site - page views, filter clicks, admin actions -
+// gets logged here. This is what powers the admin dashboard's real stats
+// and activity feed (nothing in the dashboard is hardcoded/fake).
+model Activity {
+  id        Int      @id @default(autoincrement())
+  type      String // page_view | filter_click | upload | edit | delete | login | message
+  message   String
+  meta      String? // JSON string for extra context (category, workId, etc.)
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+}
+
+// ============ CLIENT PROOFING ============
+// A private, view-only space the designer sends a client a link to, so the
+// client can review work-in-progress and leave feedback before final
+// files change hands - protects the designer from a client taking
+// finished work and then refusing to pay.
+model Proof {
+  id          Int      @id @default(autoincrement())
+  title       String
+  clientName  String?
+  clientEmail String?
+  token       String   @unique // the private URL is /proof/[token]
+  pin         String // hashed with bcrypt, same as the admin password
+  status      String   @default("pending") // pending | changes_requested | approved
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  images      ProofImage[]
+
+  @@index([token])
+}
+
+model ProofImage {
+  id          Int      @id @default(autoincrement())
+  proofId     Int
+  proof       Proof    @relation(fields: [proofId], references: [id], onDelete: Cascade)
+  title       String?
+  imageUrl    String // watermarked preview - never the final, unmarked file
+  blurDataUrl String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  comments    ProofComment[]
+}
+
+model ProofComment {
+  id           Int      @id @default(autoincrement())
+  proofImageId Int
+  proofImage   ProofImage @relation(fields: [proofImageId], references: [id], onDelete: Cascade)
+  x            Float // horizontal pin position, 0-100 (percent of image width)
+  y            Float // vertical pin position, 0-100 (percent of image height)
+  message      String
+  authorName   String?
+  authorType   String // "client" | "admin"
+  resolved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}

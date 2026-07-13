@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#1D1D1F"/>
+  <path d="M0 550 L800 350 L800 400 L0 600 Z" fill="#C4222A" opacity="0.15"/>
+  <text x="400" y="490" font-family="monospace" font-size="20" fill="#8F8D8C" text-anchor="middle" letter-spacing="2">IMAGE PENDING</text>
+  <text x="400" y="520" font-family="monospace" font-size="13" fill="#5c5b5a" text-anchor="middle" letter-spacing="1">Replace via Admin → Manage Works</text>
+</svg>
