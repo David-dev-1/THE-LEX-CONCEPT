@@ -5,6 +5,8 @@ import { hashPassword } from '@/lib/password';
 import { isSameOrigin } from '@/lib/csrf';
 import { generatePin } from '@/lib/proofAuth';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function POST(request, { params }) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

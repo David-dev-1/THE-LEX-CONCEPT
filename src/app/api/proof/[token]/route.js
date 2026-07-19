@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getProofSession } from '@/lib/proofAuth';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 // The public /proof/[token] link always requires the PIN - no exceptions,
 // including for the admin's own browser. An earlier version let a logged-
 // in admin session skip the PIN here too (so the designer could preview

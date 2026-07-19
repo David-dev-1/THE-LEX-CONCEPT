@@ -5,6 +5,8 @@ import { hashPassword } from '@/lib/password';
 import { isSameOrigin } from '@/lib/csrf';
 import { generateProofToken, generatePin } from '@/lib/proofAuth';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 // Protected - lists every proof for the admin's "Client Proofs" page.
 export async function GET() {
   const session = await getSession();

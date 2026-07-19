@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { isSameOrigin } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 const VALID_STATUSES = ['pending', 'changes_requested', 'approved'];
 
 // Protected - full proof detail for the admin's proof management page,

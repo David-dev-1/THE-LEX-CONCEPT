@@ -6,6 +6,8 @@ import { isSameOrigin } from '@/lib/csrf';
 import { isValidImageUrl } from '@/lib/validation';
 import { CATEGORY_VALUES } from '@/lib/categories';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function PUT(request, { params }) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

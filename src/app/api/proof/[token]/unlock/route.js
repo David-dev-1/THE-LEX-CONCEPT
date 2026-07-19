@@ -5,6 +5,8 @@ import { createProofSession, proofCookieName } from '@/lib/proofAuth';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isSameOrigin } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function POST(request, { params }) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

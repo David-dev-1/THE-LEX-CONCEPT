@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { isSameOrigin } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function DELETE(request, { params }) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

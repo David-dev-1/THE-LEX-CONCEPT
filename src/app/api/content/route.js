@@ -6,6 +6,15 @@ import { getSiteContent } from '@/lib/siteContent';
 import { isSameOrigin } from '@/lib/csrf';
 import { isValidImageUrl, isSafeHttpUrl } from '@/lib/validation';
 
+// Without this, Next.js can treat this route as statically cacheable,
+// since the GET handler below takes no parameters and doesn't read
+// cookies/headers - it looks like "safe to cache forever" from the
+// framework's point of view. On Vercel, that can cause the PUT handler on
+// this exact same route to get rejected at the platform level
+// (INVALID_REQUEST_METHOD) before it ever reaches this file's code -
+// this is what caused Site Content saves to fail with an empty 405.
+export const dynamic = 'force-dynamic';
+
 const EDITABLE_FIELDS = [
   'heroEyebrow', 'heroHeadingLine1', 'heroHeadingLine2', 'heroSubtext',
   'heroToolsLabel', 'heroFocusLabel', 'heroBasedLabel',

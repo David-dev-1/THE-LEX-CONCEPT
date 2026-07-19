@@ -5,6 +5,8 @@ import sharp from 'sharp';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 // This is what keeps the site fast despite real, high-quality images:
 // every upload is converted to WebP (much smaller than JPEG/PNG at the
 // same visual quality) and saved at two sizes - a large, high-quality

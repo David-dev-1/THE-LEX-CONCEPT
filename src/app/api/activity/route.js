@@ -4,6 +4,8 @@ import { getSession } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isSameOrigin } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 // Protected - full activity log for the admin dashboard.
 export async function GET(request) {
   const session = await getSession();

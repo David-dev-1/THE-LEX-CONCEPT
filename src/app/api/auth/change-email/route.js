@@ -6,6 +6,8 @@ import { createSessionToken } from '@/lib/jwt';
 import { isSameOrigin } from '@/lib/csrf';
 import { checkRateLimit } from '@/lib/rateLimit';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function POST(request) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isSameOrigin } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic'; // ensures Vercel always routes every HTTP method to this function
+
 export async function POST(request) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
